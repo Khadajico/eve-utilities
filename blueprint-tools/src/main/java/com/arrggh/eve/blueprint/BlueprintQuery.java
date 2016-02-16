@@ -5,7 +5,9 @@ import com.arrggh.eve.blueprint.cli.Parameters;
 import com.arrggh.eve.blueprint.data.BlueprintLoader;
 import com.arrggh.eve.blueprint.data.PriceQuery;
 import com.arrggh.eve.blueprint.data.TypeLoader;
+import com.arrggh.eve.blueprint.locator.BlueprintLocator;
 import com.arrggh.eve.blueprint.logging.LoggingUtilities;
+import com.arrggh.eve.blueprint.optimizer.BlueprintOptimizer;
 import org.apache.commons.cli.ParseException;
 import org.apache.logging.log4j.Level;
 

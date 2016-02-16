@@ -1,4 +1,4 @@
-package com.arrggh.eve.blueprint;
+package com.arrggh.eve.blueprint.optimizer;
 
 import com.arrggh.eve.blueprint.data.BlueprintLoader;
 import com.arrggh.eve.blueprint.data.PriceQuery;
