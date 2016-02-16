@@ -15,4 +15,5 @@ public class Parameters {
 
     private final String blueprintName;
     private final String searchString;
+    private final String priceCache;
 }

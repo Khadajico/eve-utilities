@@ -47,7 +47,7 @@ public class BlueprintOptimizer {
             if (blueprintOptional.isPresent()) {
                 optimize(space + "  ", blueprintOptional.get());
             } else {
-                System.out.println(String.format("%s  %-20s x %10d", space , material.getName(), material.getQuantity()));
+                System.out.println(String.format("%s  %-20s x %10d %f", space, material.getName(), material.getQuantity(), priceQuery.queryPrice(material.getTypeId())));
             }
         }
     }

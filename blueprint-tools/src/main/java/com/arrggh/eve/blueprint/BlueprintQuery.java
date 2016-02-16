@@ -11,6 +11,7 @@ import com.arrggh.eve.blueprint.optimizer.BlueprintOptimizer;
 import org.apache.commons.cli.ParseException;
 import org.apache.logging.log4j.Level;
 
+import java.io.File;
 import java.io.IOException;
 
 public class BlueprintQuery {
@@ -33,9 +34,11 @@ public class BlueprintQuery {
         if (parameters.isOptimize()) {
             blueprintLoader.loadFile();
             typeLoader.loadFile();
-
+            File priceCacheFile = new File(parameters.getPriceCache());
+            priceQuery.loadCacheFile(priceCacheFile);
             BlueprintOptimizer optimizer = new BlueprintOptimizer(typeLoader, blueprintLoader, priceQuery, parameters.getBlueprintName());
             optimizer.optimize();
+            priceQuery.saveCacheFile(priceCacheFile);
         } else if (parameters.isLocate()) {
             blueprintLoader.loadFile();
 

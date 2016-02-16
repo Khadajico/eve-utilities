@@ -13,6 +13,7 @@ public class CommandLineArgumentParser {
     private static final String LIMIT = "limit";
     private static final String OPTIMIZE = "optimize";
     private static final String LOCATE = "locate";
+    private static final String PRICE_CACHE = "priceCache";
 
     private final Options options = new Options();
 
@@ -22,6 +23,7 @@ public class CommandLineArgumentParser {
         options.addOption(new Option(DEBUG, "print debugging information"));
         options.addOption(Option.builder(OPTIMIZE).hasArg().desc("optimise the build options for the blueprint").build());
         options.addOption(Option.builder(LOCATE).hasArg().desc("locate a blueprint using the supplied substring").build());
+        options.addOption(Option.builder(PRICE_CACHE).hasArg().desc("use the supplied price cache file (default price-cache.json)").build());
     }
 
     public Parameters parseArguments(String[] args) throws ParseException {
@@ -33,14 +35,16 @@ public class CommandLineArgumentParser {
 
         boolean optimize = line.hasOption(OPTIMIZE);
         boolean locate = line.hasOption(LOCATE);
+        boolean cache = line.hasOption(PRICE_CACHE);
 
         String blueprintName = optimize ? line.getOptionValue(OPTIMIZE) : "";
         String searchString = locate ? line.getOptionValue(LOCATE) : "";
+        String priceCache = cache ? line.getOptionValue(PRICE_CACHE) : "price-cache.json";
 
         int limit = parseInteger(LIMIT, line.getOptionValue(LIMIT), 10);
 
         return Parameters.builder().debug(debug).verbose(verbose)
-                .optimize(optimize).blueprintName(blueprintName)
+                .optimize(optimize).blueprintName(blueprintName).priceCache(priceCache)
                 .locate(locate).searchString(searchString).limit(limit)
                 .build();
     }
