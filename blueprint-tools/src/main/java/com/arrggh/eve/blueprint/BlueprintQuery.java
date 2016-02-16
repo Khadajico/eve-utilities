@@ -1,72 +1,46 @@
 package com.arrggh.eve.blueprint;
 
+import com.arrggh.eve.blueprint.cli.CommandLineArgumentParser;
+import com.arrggh.eve.blueprint.cli.Parameters;
 import com.arrggh.eve.blueprint.data.BlueprintLoader;
 import com.arrggh.eve.blueprint.data.PriceQuery;
 import com.arrggh.eve.blueprint.data.TypeLoader;
 import com.arrggh.eve.blueprint.logging.LoggingUtilities;
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.ParseException;
 import org.apache.logging.log4j.Level;
 
 import java.io.IOException;
 
-import static com.arrggh.eve.blueprint.cli.ArgumentProcessor.parseInteger;
-
 public class BlueprintQuery {
     public static void main(String[] args) throws ParseException, IOException {
-        System.out.println("Starting Blueprint Query");
-        Options options = new Options();
-        Option verbose = new Option("verbose", "be extra verbose");
-        Option debug = new Option("debug", "print debugging information");
-        Option limit = Option.builder("limit")
-                .hasArg()
-                .desc("restrict the number of search results found (default 10)")
-                .build();
-        Option optimize = Option.builder("optimize")
-                .hasArg()
-                .desc("optimise the build options for the blueprint")
-                .build();
-        Option locate = Option.builder("locate")
-                .hasArg()
-                .desc("locate a blueprint using the substring")
-                .build();
+        CommandLineArgumentParser parser = new CommandLineArgumentParser();
+        Parameters parameters = parser.parseArguments(args);
 
-        options.addOption(limit);
-        options.addOption(verbose);
-        options.addOption(debug);
-        options.addOption(optimize);
-        options.addOption(locate);
-
-        CommandLineParser parser = new DefaultParser();
-        CommandLine line = parser.parse(options, args);
-
-        if (line.hasOption(debug.getOpt())) {
-            LoggingUtilities.setLoggingLevel(Level.INFO);
-        }
-        if (line.hasOption(verbose.getOpt())) {
+        if (parameters.isVerbose()) {
             LoggingUtilities.setLoggingLevel(Level.ALL);
+        } else if (parameters.isDebug()) {
+            LoggingUtilities.setLoggingLevel(Level.INFO);
+        } else {
+            LoggingUtilities.setLoggingLevel(Level.WARN);
         }
 
         BlueprintLoader blueprintLoader = new BlueprintLoader();
         TypeLoader typeLoader = new TypeLoader();
         PriceQuery priceQuery = new PriceQuery();
 
-        if (line.hasOption(optimize.getOpt())) {
+        if (parameters.isOptimize()) {
             blueprintLoader.loadFile();
             typeLoader.loadFile();
-            String blueprintName = line.getOptionValue(optimize.getOpt());
-            BlueprintOptimizer optimizer = new BlueprintOptimizer(typeLoader, blueprintLoader, priceQuery, blueprintName);
+
+            BlueprintOptimizer optimizer = new BlueprintOptimizer(typeLoader, blueprintLoader, priceQuery, parameters.getBlueprintName());
             optimizer.optimize();
-        } else if (line.hasOption(locate.getOpt())) {
+        } else if (parameters.isLocate()) {
             blueprintLoader.loadFile();
-            String searchString = line.getOptionValue(locate.getOpt());
-            Integer resultLimit = parseInteger("limit", line.getOptionValue(limit.getOpt()), 10);
-            BlueprintLocator locator = new BlueprintLocator(blueprintLoader, searchString, resultLimit);
+
+            BlueprintLocator locator = new BlueprintLocator(blueprintLoader, parameters.getSearchString(), parameters.getLimit());
             locator.locate();
         } else {
-            String header = "Perform blueprint build optimizations\n\n";
-            String footer = "\nPlease report any issues to khadajico (at) gmail (dot) com";
-
-            HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("java -jar blueprint-query.jar", header, options, footer, true);        }
+            parser.dumpHelpToConsole();
+        }
     }
 }
