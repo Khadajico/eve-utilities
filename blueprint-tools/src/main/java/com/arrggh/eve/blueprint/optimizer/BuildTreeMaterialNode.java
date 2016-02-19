@@ -10,9 +10,4 @@ class BuildTreeMaterialNode implements BuildTreeNode {
     private EveMaterial material;
     private double buyPrice;
     private int quantity;
-
-    @Override
-    public double getBuildPrice() {
-        return buyPrice;
-    }
 }

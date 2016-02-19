@@ -11,13 +11,13 @@ public class TestPriceCache implements MarketPriceCache {
 
     private double lookup(int typeId) {
         switch (typeId) {
-            case 21638:
+            case 21638: // Vespa II
                 return 0.0f;
             case 9834: // Guidance Systems
                 return 1.0f;
             case 11399: // Morphite
                 return 2.0f;
-            case 15508:
+            case 15508: // Vespa I
                 return 3.0f;
             case 34: // Tritanium
                 return 4.0f;
@@ -33,15 +33,15 @@ public class TestPriceCache implements MarketPriceCache {
                 return 9.0f;
             case 9848: // Robotics
                 return 10.0f;
-            case 11481:
-                return 11.0f;
-            case 11690:
+            case 11481: // R.A.M.- Robotics
+                return 40.0f;
+            case 11690: // Superconductor Rails
                 return 12.0f;
-            case 16682:
+            case 16682: // Hypersynaptic Fibers
                 return 13.0f;
-            case 16679:
+            case 16679: // Fullerides
                 return 14.0f;
-            case 16671:
+            case 16671: // Titanium Carbide
                 return 15.0f;
         }
         return -1.0f;

@@ -35,12 +35,12 @@ public class BlueprintOptimizer {
     public void generateBuildTree() {
         System.out.println("Starting optimization of blueprint '" + blueprint.getName() + "'");
 
-        BuildTreeBlueprintNode tree = generateBuildTree(blueprint);
+        BuildTreeBlueprintNode tree = generateBuildTree(1, blueprint);
         BuildTreePrinter printer = new BuildTreePrinter(System.out);
         printer.printTree(tree);
     }
 
-    private BuildTreeBlueprintNode generateBuildTree(EveBlueprint bp) {
+    private BuildTreeBlueprintNode generateBuildTree(long required, EveBlueprint bp) {
         EveMaterial produces = bp.getManufacture().getProduces().get(0);
 
         BuildTreeBlueprintNode blueprintNode = BuildTreeBlueprintNode.builder().blueprint(bp).buyPrice(priceQuery.queryPrice(produces.getTypeId())).quantity(produces.getQuantity()).build();
@@ -49,7 +49,9 @@ public class BlueprintOptimizer {
         for (EveMaterial material : bp.getManufacture().getMaterials()) {
             Optional<EveBlueprint> blueprintOptional = blueprintLoader.getBlueprintForId(material.getTypeId());
             if (blueprintOptional.isPresent()) {
-                children.add(generateBuildTree(blueprintOptional.get()));
+                long runsNeeded = Math.round(Math.ceil(1.0 * material.getQuantity() / produces.getQuantity()));
+                System.err.println("We need " + required + " blueprint makes " + produces.getQuantity() + " per run, so need " + runsNeeded + " runs");
+                children.add(generateBuildTree(1, blueprintOptional.get()));
             } else {
                 BuildTreeMaterialNode materialNode = BuildTreeMaterialNode.builder().material(material).buyPrice(priceQuery.queryPrice(material.getTypeId())).quantity(material.getQuantity()).build();
                 children.add(materialNode);

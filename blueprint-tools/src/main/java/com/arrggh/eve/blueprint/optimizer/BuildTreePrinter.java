@@ -4,6 +4,7 @@ import com.arrggh.eve.blueprint.model.EveBlueprint;
 import com.arrggh.eve.blueprint.model.EveMaterial;
 
 import java.io.PrintStream;
+import java.util.stream.Collectors;
 
 public class BuildTreePrinter {
     private static final String SPACING = "  ";
@@ -23,10 +24,10 @@ public class BuildTreePrinter {
         EveBlueprint blueprint = node.getBlueprint();
         EveMaterial material = blueprint.getManufacture().getProduces().get(0);
 
-        double buildPrice = node.getBuildPrice();
+        double buildPrice = node.getChildren().stream().collect(Collectors.summingDouble(child -> child.getBuyPrice() * child.getQuantity()));
         double buyPrice = node.getBuyPrice();
-        String action = node.isShouldBuy() ? "Buy" : "Build";
-        output.println(String.format("%-30s    %16.2f    %16.2f    %-8s", offset + material.getName() + "(" + material.getTypeId() + ")", buyPrice, buildPrice, action));
+        String action = buyPrice < buildPrice ? "Buy" : "Build";
+        output.println(String.format("%-30s    %16.2f    %16.2f    %-8s", offset + material.getName() + "(" + material.getQuantity() + ")", buyPrice, buildPrice, action));
 
         for (BuildTreeNode child : node.getChildren()) {
             if (child instanceof BuildTreeBlueprintNode) {
@@ -42,6 +43,6 @@ public class BuildTreePrinter {
     private void printTreeNode(String offset, BuildTreeMaterialNode node) {
         EveMaterial material = node.getMaterial();
         double buyPrice = material.getQuantity() * node.getBuyPrice();
-        output.println(String.format("%-30s    %16s    %16.2f    %-8s", offset + material.getName() + "(" + material.getTypeId() + ")", "", buyPrice, "Buy"));
+        output.println(String.format("%-30s    %16s    %16.2f    %-8s", offset + material.getName() + "(" + material.getQuantity() + ")", "", buyPrice, "Buy"));
     }
 }
