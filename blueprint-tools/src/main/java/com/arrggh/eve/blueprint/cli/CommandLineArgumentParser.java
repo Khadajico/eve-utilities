@@ -14,6 +14,7 @@ public class CommandLineArgumentParser {
     private static final String OPTIMIZE = "optimize";
     private static final String LOCATE = "locate";
     private static final String PRICE_CACHE = "priceCache";
+    private static final String VERSION = "version";
 
     private final Options options = new Options();
 
@@ -24,6 +25,7 @@ public class CommandLineArgumentParser {
         options.addOption(Option.builder(OPTIMIZE).hasArg().desc("optimise the build options for the blueprint").build());
         options.addOption(Option.builder(LOCATE).hasArg().desc("locate a blueprint using the supplied substring").build());
         options.addOption(Option.builder(PRICE_CACHE).hasArg().desc("use the supplied price cache file (default price-cache.json)").build());
+        options.addOption(new Option(VERSION, "show version information"));
     }
 
     public Parameters parseArguments(String[] args) throws ParseException {
@@ -32,6 +34,7 @@ public class CommandLineArgumentParser {
 
         boolean debug = line.hasOption(DEBUG);
         boolean verbose = line.hasOption(VERBOSE);
+        boolean version = line.hasOption(VERSION);
 
         boolean optimize = line.hasOption(OPTIMIZE);
         boolean locate = line.hasOption(LOCATE);
@@ -46,6 +49,7 @@ public class CommandLineArgumentParser {
         return Parameters.builder().debug(debug).verbose(verbose)
                 .optimize(optimize).blueprintName(blueprintName).priceCache(priceCache)
                 .locate(locate).searchString(searchString).limit(limit)
+                .version(version)
                 .build();
     }
 

@@ -16,7 +16,7 @@ public class TypeLoader {
     public void loadFile() throws IOException {
         System.out.print("Loading types ... ");
         ObjectMapper mapper = new ObjectMapper();
-        InputStream typeStream = BlueprintLoader.class.getResourceAsStream("/eve-types.json");
+        InputStream typeStream = BlueprintLoader.class.getResourceAsStream("/data/eve-types.json");
         fileContents = mapper.readValue(typeStream, EveTypeFile.class);
         System.out.println(" done (" + fileContents.getTypes().size() + " loaded)");
     }

@@ -1,16 +1,16 @@
-package com.arrggh.eve.blueprint.data;
+package com.arrggh.eve.blueprint.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PriceCacheEntry {
-    private int typeId;
-    private int marketId;
-    private float price;
+public class MarketPriceFile {
+    private List<MarketPrice> prices;
 }

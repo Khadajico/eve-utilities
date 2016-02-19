@@ -10,6 +10,7 @@ public class Parameters {
     private final boolean verbose;
     private final boolean optimize;
     private final boolean locate;
+    private final boolean version;
 
     private final int limit;
 

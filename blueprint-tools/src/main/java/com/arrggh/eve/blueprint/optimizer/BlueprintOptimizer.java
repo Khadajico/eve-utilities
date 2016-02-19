@@ -7,6 +7,8 @@ import com.arrggh.eve.blueprint.model.EveBlueprint;
 import com.arrggh.eve.blueprint.model.EveMaterial;
 import org.apache.logging.log4j.Logger;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.apache.logging.log4j.LogManager.getLogger;
@@ -30,25 +32,30 @@ public class BlueprintOptimizer {
         blueprint = blueprintOptional.get();
     }
 
-    public void optimize() {
+    public void generateBuildTree() {
         System.out.println("Starting optimization of blueprint '" + blueprint.getName() + "'");
 
-        optimize("", blueprint);
+        BuildTreeBlueprintNode tree = generateBuildTree(blueprint);
+        BuildTreePrinter printer = new BuildTreePrinter(System.out);
+        printer.printTree(tree);
     }
 
-    private void optimize(String space, EveBlueprint bp) {
-        System.out.println(String.format("%s %s", space, bp.getName()));
-
+    private BuildTreeBlueprintNode generateBuildTree(EveBlueprint bp) {
         EveMaterial produces = bp.getManufacture().getProduces().get(0);
-        System.out.println(String.format("%s %s -> @ %f", space, produces.getName(), priceQuery.queryPrice(produces.getTypeId()) * produces.getQuantity()));
 
+        BuildTreeBlueprintNode blueprintNode = BuildTreeBlueprintNode.builder().blueprint(bp).buyPrice(priceQuery.queryPrice(produces.getTypeId())).quantity(produces.getQuantity()).build();
+
+        List<BuildTreeNode> children = new LinkedList<>();
         for (EveMaterial material : bp.getManufacture().getMaterials()) {
             Optional<EveBlueprint> blueprintOptional = blueprintLoader.getBlueprintForId(material.getTypeId());
             if (blueprintOptional.isPresent()) {
-                optimize(space + "  ", blueprintOptional.get());
+                children.add(generateBuildTree(blueprintOptional.get()));
             } else {
-                System.out.println(String.format("%s  %-20s x %10d %f", space, material.getName(), material.getQuantity(), priceQuery.queryPrice(material.getTypeId())));
+                BuildTreeMaterialNode materialNode = BuildTreeMaterialNode.builder().material(material).buyPrice(priceQuery.queryPrice(material.getTypeId())).quantity(material.getQuantity()).build();
+                children.add(materialNode);
             }
         }
+        blueprintNode.setChildren(children);
+        return blueprintNode;
     }
 }

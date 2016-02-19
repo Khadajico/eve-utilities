@@ -58,4 +58,10 @@ public class CommandLineArgumentParserTest {
         assertTrue(parameters.isDebug());
         assertTrue(parameters.isVerbose());
     }
+
+    @Test
+    public void testVersionFlags() throws ParseException {
+        Parameters parameters = parser.parseArguments(new String[]{"-version"});
+        assertTrue(parameters.isVersion());
+    }
 }

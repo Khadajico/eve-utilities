@@ -3,6 +3,7 @@ package com.arrggh.eve.blueprint;
 import com.arrggh.eve.blueprint.cli.CommandLineArgumentParser;
 import com.arrggh.eve.blueprint.cli.Parameters;
 import com.arrggh.eve.blueprint.data.BlueprintLoader;
+import com.arrggh.eve.blueprint.data.FileMarketPriceCache;
 import com.arrggh.eve.blueprint.data.PriceQuery;
 import com.arrggh.eve.blueprint.data.TypeLoader;
 import com.arrggh.eve.blueprint.locator.BlueprintLocator;
@@ -14,7 +15,7 @@ import org.apache.logging.log4j.Level;
 import java.io.File;
 import java.io.IOException;
 
-public class BlueprintQuery {
+public class BlueprintTool {
     public static void main(String[] args) throws ParseException, IOException {
         CommandLineArgumentParser parser = new CommandLineArgumentParser();
         Parameters parameters = parser.parseArguments(args);
@@ -27,18 +28,19 @@ public class BlueprintQuery {
             LoggingUtilities.setLoggingLevel(Level.WARN);
         }
 
+        FileMarketPriceCache priceCache = new FileMarketPriceCache();
         BlueprintLoader blueprintLoader = new BlueprintLoader();
         TypeLoader typeLoader = new TypeLoader();
-        PriceQuery priceQuery = new PriceQuery();
+        PriceQuery priceQuery = new PriceQuery(priceCache);
 
         if (parameters.isOptimize()) {
             blueprintLoader.loadFile();
             typeLoader.loadFile();
             File priceCacheFile = new File(parameters.getPriceCache());
-            priceQuery.loadCacheFile(priceCacheFile);
+            priceCache.loadCacheFromFile(priceCacheFile);
             BlueprintOptimizer optimizer = new BlueprintOptimizer(typeLoader, blueprintLoader, priceQuery, parameters.getBlueprintName());
-            optimizer.optimize();
-            priceQuery.saveCacheFile(priceCacheFile);
+            optimizer.generateBuildTree();
+            priceCache.saveCacheToFile(priceCacheFile);
         } else if (parameters.isLocate()) {
             blueprintLoader.loadFile();
 

@@ -7,8 +7,10 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.apache.logging.log4j.LogManager.getLogger;
 
@@ -25,7 +27,7 @@ public class BlueprintLoader {
     public void loadFile() throws IOException {
         System.out.print("Loading blueprints ... ");
         ObjectMapper mapper = new ObjectMapper();
-        InputStream typeStream = BlueprintLoader.class.getResourceAsStream("/eve-blueprints.json");
+        InputStream typeStream = BlueprintLoader.class.getResourceAsStream("/data/eve-blueprints.json");
         EveBlueprintFile fileContents = mapper.readValue(typeStream, EveBlueprintFile.class);
         for (EveBlueprint blueprint : fileContents.getBlueprints()) {
             blueprints.put(blueprint.getName(), blueprint);
