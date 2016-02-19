@@ -8,7 +8,31 @@
     <artifactId>blueprint-tools</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+
+    <properties>
+        <encoding>UTF-8</encoding>
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
+    </properties>
+
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/build.properties</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>**/build.properties</exclude>
+                </excludes>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -19,6 +43,44 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>2.2.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <dateFormat>yyyy-MM-dd HH:mm:ss</dateFormat>
+                    <verbose>false</verbose>
+                    <generateGitPropertiesFile>false</generateGitPropertiesFile>
+                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties
+                    </generateGitPropertiesFilename>
+                    <format>properties</format>
+                    <failOnNoGitDirectory>true</failOnNoGitDirectory>
+                    <failOnUnableToExtractRepoInfo>true</failOnUnableToExtractRepoInfo>
+                    <excludeProperties>
+                        <!-- <excludeProperty>git.user.*</excludeProperty> -->
+                    </excludeProperties>
+                    <includeOnlyProperties>
+                        <!-- <includeOnlyProperty>^git.commit.id.full$</includeOnlyProperty> -->
+                    </includeOnlyProperties>
+                    <abbrevLength>40</abbrevLength>
+
+                    <gitDescribe>
+                        <abbrev>7</abbrev>
+                        <dirty>-dirty</dirty>
+                        <match>*</match>
+                    </gitDescribe>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -31,8 +93,9 @@
                         </goals>
                         <configuration>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.arrggh.eve.blueprint.BlueprintQuery</mainClass>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.arrggh.eve.blueprint.BlueprintTool</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
