@@ -56,7 +56,8 @@ public class PriceQuery {
         try (CloseableHttpResponse queryResponse = httpclient.execute(httpGet)) {
             if (queryResponse.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 HttpEntity entity1 = queryResponse.getEntity();
-                EvePriceHistory priceHistory = mapper.readValue(EntityUtils.toString(entity1), EvePriceHistory.class);
+                String content = EntityUtils.toString(entity1);
+                EvePriceHistory priceHistory = mapper.readValue(content, EvePriceHistory.class);
                 EntityUtils.consume(entity1);
                 time = System.nanoTime();
                 price = priceHistory.findLatestPrice();
