@@ -13,12 +13,12 @@ import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import static org.apache.logging.log4j.LogManager.getLogger;
 
 public class PriceQuery {
     private static final long DEFAULT_TIME = 0;
-    private static final double DEFAULT_PRICE = 9999.99;
 
     private static final Logger LOG = getLogger(PriceQuery.class);
     private static final ObjectMapper mapper = new ObjectMapper();
@@ -30,27 +30,26 @@ public class PriceQuery {
 
     private static final int marketId = 10000002;
 
-    public double queryPrice(int typeId) {
+    public Optional<Double> queryPrice(int typeId) {
         // Get it from the cache if possible
-        MarketPrice cachedPrice = cache.getPrice(marketId, typeId);
+        MarketPrice cachedPrice = cache.getPrice(typeId, marketId);
         if (cachedPrice != null) {
             return cachedPrice.getPrice();
         }
 
         // Do a lookup otherwise
         MarketPrice entry = fetchPriceFromCrest(typeId, marketId);
-        cache.addPrice(marketId, typeId, entry);
+        cache.addPrice(typeId, marketId, entry);
         return entry.getPrice();
     }
 
-
-    private MarketPrice fetchPriceFromCrest(int typeId, int marketId) {
+    protected MarketPrice fetchPriceFromCrest(int typeId, int marketId) {
         CloseableHttpClient httpclient = HttpClients.createDefault();
         String url = String.format("https://public-crest.eveonline.com/market/%d/types/%d/history/", marketId, typeId);
         HttpGet httpGet = new HttpGet(url);
 
         long time = DEFAULT_TIME;
-        double price = DEFAULT_PRICE;
+        Optional<Double> price = Optional.empty();
 
         LOG.info("querying url '" + httpGet.getURI() + "'");
         try (CloseableHttpResponse queryResponse = httpclient.execute(httpGet)) {

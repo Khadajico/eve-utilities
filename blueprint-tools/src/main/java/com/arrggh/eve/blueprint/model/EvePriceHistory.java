@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Data
 public class EvePriceHistory {
@@ -15,7 +16,10 @@ public class EvePriceHistory {
     private String pageCount_str;
 
 
-    public double findLatestPrice() {
+    public Optional<Double> findLatestPrice() {
+        if (items.size() == 0) {
+            return Optional.empty();
+        }
         EvePriceHistoryItem currentItem = items.get(0);
         LocalDateTime currentTime = DateTimeUtilities.parseDateTime(currentItem.getDate());
 
@@ -26,6 +30,6 @@ public class EvePriceHistory {
                 currentTime = newTime;
             }
         }
-        return currentItem.getAvgPrice();
+        return Optional.of(currentItem.getAvgPrice());
     }
 }

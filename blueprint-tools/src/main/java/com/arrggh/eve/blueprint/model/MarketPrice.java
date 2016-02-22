@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Optional;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -13,5 +15,5 @@ public class MarketPrice {
     private long time;
     private int typeId;
     private int marketId;
-    private double price;
+    private Optional<Double> price;
 }

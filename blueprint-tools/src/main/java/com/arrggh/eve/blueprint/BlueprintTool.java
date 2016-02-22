@@ -2,10 +2,7 @@ package com.arrggh.eve.blueprint;
 
 import com.arrggh.eve.blueprint.cli.CommandLineArgumentParser;
 import com.arrggh.eve.blueprint.cli.Parameters;
-import com.arrggh.eve.blueprint.data.BlueprintLoader;
-import com.arrggh.eve.blueprint.data.FileMarketPriceCache;
-import com.arrggh.eve.blueprint.data.PriceQuery;
-import com.arrggh.eve.blueprint.data.TypeLoader;
+import com.arrggh.eve.blueprint.data.*;
 import com.arrggh.eve.blueprint.locator.BlueprintLocator;
 import com.arrggh.eve.blueprint.logging.LoggingUtilities;
 import com.arrggh.eve.blueprint.optimizer.BlueprintOptimizer;
@@ -28,7 +25,7 @@ public class BlueprintTool {
             LoggingUtilities.setLoggingLevel(Level.WARN);
         }
 
-        FileMarketPriceCache priceCache = new FileMarketPriceCache();
+        MarketPriceCache priceCache = new MarketPriceCache();
         BlueprintLoader blueprintLoader = new BlueprintLoader();
         TypeLoader typeLoader = new TypeLoader();
         PriceQuery priceQuery = new PriceQuery(priceCache);
@@ -37,10 +34,10 @@ public class BlueprintTool {
             blueprintLoader.loadFile();
             typeLoader.loadFile();
             File priceCacheFile = new File(parameters.getPriceCache());
-            priceCache.loadCacheFromFile(priceCacheFile);
+            MarketPriceCacheUtilities.loadCacheFromFile(priceCache, priceCacheFile);
             BlueprintOptimizer optimizer = new BlueprintOptimizer(typeLoader, blueprintLoader, priceQuery, parameters.getBlueprintName());
             optimizer.generateBuildTree();
-            priceCache.saveCacheToFile(priceCacheFile);
+            MarketPriceCacheUtilities.saveCacheToFile(priceCache, priceCacheFile);
         } else if (parameters.isLocate()) {
             blueprintLoader.loadFile();
 

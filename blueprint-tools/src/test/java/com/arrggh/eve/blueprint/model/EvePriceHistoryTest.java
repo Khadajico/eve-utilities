@@ -13,6 +13,6 @@ public class EvePriceHistoryTest {
         ObjectMapper mapper = new ObjectMapper();
         EvePriceHistory history = mapper.readValue(EvePriceHistoryTest.class.getResourceAsStream("/test.price"), EvePriceHistory.class);
 
-        assertEquals(152.26, history.findLatestPrice(), 0.01);
+        assertEquals(152.26, history.findLatestPrice().get(), 0.01);
     }
 }

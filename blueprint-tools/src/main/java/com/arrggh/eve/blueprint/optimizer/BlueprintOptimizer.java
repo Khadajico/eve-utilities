@@ -5,11 +5,14 @@ import com.arrggh.eve.blueprint.data.PriceQuery;
 import com.arrggh.eve.blueprint.data.TypeLoader;
 import com.arrggh.eve.blueprint.model.EveBlueprint;
 import com.arrggh.eve.blueprint.model.EveMaterial;
+import com.arrggh.eve.blueprint.optimizer.nodes.BuildTreeBlueprintNode;
+import com.arrggh.eve.blueprint.optimizer.nodes.BuildTreeMaterialNode;
+import com.arrggh.eve.blueprint.optimizer.nodes.BuildTreeNode;
+import com.arrggh.eve.blueprint.utilities.ColumnOutputPrinter;
 import org.apache.logging.log4j.Logger;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.text.DecimalFormat;
+import java.util.*;
 
 import static org.apache.logging.log4j.LogManager.getLogger;
 
@@ -34,26 +37,54 @@ public class BlueprintOptimizer {
 
     public void generateBuildTree() {
         System.out.println("Starting optimization of blueprint '" + blueprint.getName() + "'");
-
         BuildTreeBlueprintNode tree = generateBuildTree(1, blueprint);
+        tree.updateTreePrices();
+
         BuildTreePrinter printer = new BuildTreePrinter(System.out);
         printer.printTree(tree);
+
+        Map<Integer, Long> shoppingList = new HashMap<>();
+        Map<Integer, Long> buildList = new HashMap<>();
+        tree.generateBuildBuyLists(shoppingList, buildList);
+
+        String[] buyHeaders = {"Buy", "Quantity"};
+        String[] buildHeaders = {"Build", "Quantity"};
+        Class<?>[] classes = new Class<?>[]{String.class, String.class};
+
+        DecimalFormat decimalFormat = new DecimalFormat("#");
+        decimalFormat.setGroupingUsed(true);
+        decimalFormat.setGroupingSize(3);
+
+        List<String[]> buyData = new LinkedList<>();
+        for (Map.Entry<Integer, Long> entries : shoppingList.entrySet()) {
+            buyData.add(new String[]{typeLoader.getType(entries.getKey()).getName(), decimalFormat.format(entries.getValue())});
+        }
+
+        List<String[]> buildData = new LinkedList<>();
+        for (Map.Entry<Integer, Long> entries : buildList.entrySet()) {
+            buildData.add(new String[]{typeLoader.getType(entries.getKey()).getName(), decimalFormat.format(entries.getValue())});
+        }
+
+        ColumnOutputPrinter buyPrinter = new ColumnOutputPrinter(buyHeaders, classes, buyData);
+        ColumnOutputPrinter buildPrinter = new ColumnOutputPrinter(buyHeaders, classes, buildData);
+
+        buyPrinter.output();
+        buildPrinter.output();
     }
 
     private BuildTreeBlueprintNode generateBuildTree(long required, EveBlueprint bp) {
         EveMaterial produces = bp.getManufacture().getProduces().get(0);
 
-        BuildTreeBlueprintNode blueprintNode = BuildTreeBlueprintNode.builder().blueprint(bp).buyPrice(priceQuery.queryPrice(produces.getTypeId())).quantity(produces.getQuantity()).build();
+        BuildTreeBlueprintNode blueprintNode = BuildTreeBlueprintNode.builder().blueprint(bp).produces(produces).unitBuyPrice(priceQuery.queryPrice(produces.getTypeId())).quantity(required).build();
 
         List<BuildTreeNode> children = new LinkedList<>();
         for (EveMaterial material : bp.getManufacture().getMaterials()) {
             Optional<EveBlueprint> blueprintOptional = blueprintLoader.getBlueprintForId(material.getTypeId());
             if (blueprintOptional.isPresent()) {
-                long runsNeeded = Math.round(Math.ceil(1.0 * material.getQuantity() / produces.getQuantity()));
-                System.err.println("We need " + required + " blueprint makes " + produces.getQuantity() + " per run, so need " + runsNeeded + " runs");
-                children.add(generateBuildTree(1, blueprintOptional.get()));
+                long runsNeeded = Math.round(Math.ceil(1.0 * required * material.getQuantity() / produces.getQuantity()));
+                children.add(generateBuildTree(runsNeeded, blueprintOptional.get()));
             } else {
-                BuildTreeMaterialNode materialNode = BuildTreeMaterialNode.builder().material(material).buyPrice(priceQuery.queryPrice(material.getTypeId())).quantity(material.getQuantity()).build();
+                BuildTreeMaterialNode materialNode = BuildTreeMaterialNode.builder().material(material).unitBuyPrice(priceQuery.queryPrice(material.getTypeId())).quantity(material.getQuantity() * required).build();
                 children.add(materialNode);
             }
         }

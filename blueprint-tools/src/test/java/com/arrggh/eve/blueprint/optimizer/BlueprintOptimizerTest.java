@@ -1,6 +1,7 @@
 package com.arrggh.eve.blueprint.optimizer;
 
 import com.arrggh.eve.blueprint.data.BlueprintLoader;
+import com.arrggh.eve.blueprint.data.MarketPriceCacheUtilities;
 import com.arrggh.eve.blueprint.data.PriceQuery;
 import com.arrggh.eve.blueprint.data.TypeLoader;
 import org.junit.BeforeClass;
@@ -11,6 +12,8 @@ import java.io.IOException;
 public class BlueprintOptimizerTest {
     private static TypeLoader typeLoader;
     private static BlueprintLoader blueprintLoader;
+    private static TestMarketPriceCache priceCache;
+    private static PriceQuery priceQuery;
 
     @BeforeClass
     public static void loadReferenceData() throws IOException {
@@ -19,12 +22,26 @@ public class BlueprintOptimizerTest {
 
         typeLoader.loadFile();
         blueprintLoader.loadFile();
+
+        priceCache = new TestMarketPriceCache();
+        priceQuery = new TestPriceQuery(priceCache);
     }
 
     @Test
-    public void testOptimize() {
-        PriceQuery priceQuery = new PriceQuery(new TestPriceCache());
+    public void testOptimizeVespaII() throws IOException {
+        MarketPriceCacheUtilities.loadCacheFromURL(priceCache, BlueprintOptimizerTest.class.getResource("/vespaII-price-cache.json"));
+        priceCache.resetCacheTimestamps();
+
         BlueprintOptimizer optimizer = new BlueprintOptimizer(typeLoader, blueprintLoader, priceQuery, "Vespa II Blueprint");
+        optimizer.generateBuildTree();
+    }
+
+    @Test
+    public void testOptimizeAvatar() throws IOException {
+        MarketPriceCacheUtilities.loadCacheFromURL(priceCache, BlueprintOptimizerTest.class.getResource("/avatar-price-cache.json"));
+        priceCache.resetCacheTimestamps();
+
+        BlueprintOptimizer optimizer = new BlueprintOptimizer(typeLoader, blueprintLoader, priceQuery, "Avatar Blueprint");
         optimizer.generateBuildTree();
     }
 }
