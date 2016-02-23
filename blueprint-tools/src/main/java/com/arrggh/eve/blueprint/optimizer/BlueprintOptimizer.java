@@ -5,13 +5,12 @@ import com.arrggh.eve.blueprint.data.PriceQuery;
 import com.arrggh.eve.blueprint.data.TypeLoader;
 import com.arrggh.eve.blueprint.model.EveBlueprint;
 import com.arrggh.eve.blueprint.model.EveMaterial;
+import com.arrggh.eve.blueprint.model.EveType;
 import com.arrggh.eve.blueprint.optimizer.nodes.BuildTreeBlueprintNode;
 import com.arrggh.eve.blueprint.optimizer.nodes.BuildTreeMaterialNode;
 import com.arrggh.eve.blueprint.optimizer.nodes.BuildTreeNode;
-import com.arrggh.eve.blueprint.utilities.ColumnOutputPrinter;
 import org.apache.logging.log4j.Logger;
 
-import java.text.DecimalFormat;
 import java.util.*;
 
 import static org.apache.logging.log4j.LogManager.getLogger;
@@ -35,41 +34,16 @@ public class BlueprintOptimizer {
         blueprint = blueprintOptional.get();
     }
 
-    public void generateBuildTree() {
+    public BuildManifest generateBuildTree() {
         System.out.println("Starting optimization of blueprint '" + blueprint.getName() + "'");
         BuildTreeBlueprintNode tree = generateBuildTree(1, blueprint);
         tree.updateTreePrices();
 
-        BuildTreePrinter printer = new BuildTreePrinter(System.out);
-        printer.printTree(tree);
+        Map<EveType, Long> shoppingList = new HashMap<>();
+        Map<EveType, Long> buildList = new HashMap<>();
+        tree.generateBuildBuyLists(typeLoader, shoppingList, buildList);
 
-        Map<Integer, Long> shoppingList = new HashMap<>();
-        Map<Integer, Long> buildList = new HashMap<>();
-        tree.generateBuildBuyLists(shoppingList, buildList);
-
-        String[] buyHeaders = {"Buy", "Quantity"};
-        String[] buildHeaders = {"Build", "Quantity"};
-        Class<?>[] classes = new Class<?>[]{String.class, String.class};
-
-        DecimalFormat decimalFormat = new DecimalFormat("#");
-        decimalFormat.setGroupingUsed(true);
-        decimalFormat.setGroupingSize(3);
-
-        List<String[]> buyData = new LinkedList<>();
-        for (Map.Entry<Integer, Long> entries : shoppingList.entrySet()) {
-            buyData.add(new String[]{typeLoader.getType(entries.getKey()).getName(), decimalFormat.format(entries.getValue())});
-        }
-
-        List<String[]> buildData = new LinkedList<>();
-        for (Map.Entry<Integer, Long> entries : buildList.entrySet()) {
-            buildData.add(new String[]{typeLoader.getType(entries.getKey()).getName(), decimalFormat.format(entries.getValue())});
-        }
-
-        ColumnOutputPrinter buyPrinter = new ColumnOutputPrinter(buyHeaders, classes, buyData);
-        ColumnOutputPrinter buildPrinter = new ColumnOutputPrinter(buyHeaders, classes, buildData);
-
-        buyPrinter.output();
-        buildPrinter.output();
+        return BuildManifest.builder().tree(tree).shoppingList(shoppingList).buildList(buildList).build();
     }
 
     private BuildTreeBlueprintNode generateBuildTree(long required, EveBlueprint bp) {

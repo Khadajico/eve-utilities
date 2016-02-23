@@ -33,7 +33,8 @@ public class BlueprintOptimizerTest {
         priceCache.resetCacheTimestamps();
 
         BlueprintOptimizer optimizer = new BlueprintOptimizer(typeLoader, blueprintLoader, priceQuery, "Vespa II Blueprint");
-        optimizer.generateBuildTree();
+        BuildManifest manifest = optimizer.generateBuildTree();
+        manifest.dumpToConsole();
     }
 
     @Test
@@ -42,6 +43,7 @@ public class BlueprintOptimizerTest {
         priceCache.resetCacheTimestamps();
 
         BlueprintOptimizer optimizer = new BlueprintOptimizer(typeLoader, blueprintLoader, priceQuery, "Avatar Blueprint");
-        optimizer.generateBuildTree();
+        BuildManifest manifest = optimizer.generateBuildTree();
+        manifest.dumpToConsole();
     }
 }

@@ -1,6 +1,8 @@
 package com.arrggh.eve.blueprint.optimizer.nodes;
 
+import com.arrggh.eve.blueprint.data.TypeLoader;
 import com.arrggh.eve.blueprint.model.EveMaterial;
+import com.arrggh.eve.blueprint.model.EveType;
 import lombok.Builder;
 import lombok.Data;
 
@@ -13,12 +15,16 @@ public class BuildTreeMaterialNode implements BuildTreeNode {
     private EveMaterial material;
     private Optional<Double> buyPrice;
     private Optional<Double> unitBuyPrice;
-    private double buildPrice;
     private long quantity;
 
     @Override
-    public boolean getShouldBuy() {
-        return true;
+    public Optional<Boolean> getShouldBuy() {
+        return unitBuyPrice.isPresent() ? Optional.of(true) : Optional.empty();
+    }
+
+    @Override
+    public Optional<Double> getBuildPrice() {
+        return Optional.empty();
     }
 
     @Override
@@ -31,7 +37,8 @@ public class BuildTreeMaterialNode implements BuildTreeNode {
     }
 
     @Override
-    public void generateBuildBuyLists(Map<Integer, Long> shoppingList, Map<Integer, Long> buildList) {
-        shoppingList.put(material.getTypeId(), shoppingList.getOrDefault(material.getTypeId(), 0l) + quantity);
+    public void generateBuildBuyLists(TypeLoader typeLoader, Map<EveType, Long> shoppingList, Map<EveType, Long> buildList) {
+        EveType type = typeLoader.getType(material.getTypeId());
+        shoppingList.put(type, shoppingList.getOrDefault(type, 0l) + quantity);
     }
 }

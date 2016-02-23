@@ -1,9 +1,13 @@
 package com.arrggh.eve.blueprint.cli;
 
 
+import com.arrggh.eve.blueprint.BlueprintTool;
 import org.apache.commons.cli.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.io.IOException;
+import java.util.Properties;
 
 public class CommandLineArgumentParser {
     private static final Logger LOG = LogManager.getLogger(CommandLineArgumentParser.class);
@@ -53,13 +57,32 @@ public class CommandLineArgumentParser {
                 .build();
     }
 
+    private static final String FOOTER = "\nPlease report any issues to khadajico (at) gmail (dot) com\n";
+
     public void dumpHelpToConsole() {
         String header = "Perform blueprint build optimizations\n\n";
-        String footer = "\nPlease report any issues to khadajico (at) gmail (dot) com";
 
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("java -jar blueprint-query.jar", header, options, footer, true);
+        formatter.printHelp("java -jar blueprint-tool.jar", header, options, FOOTER, true);
     }
+
+    public void dumpVersionInfoToConsole() throws IOException {
+        Properties buildProperties = new Properties();
+        buildProperties.load(BlueprintTool.class.getResourceAsStream("/build.properties"));
+
+        boolean dirtyFlag = Boolean.parseBoolean(buildProperties.getProperty("git.dirty"));
+        String gitCommitDate = buildProperties.getProperty("git.commit.time");
+        String gitCommitId = buildProperties.getProperty("git.commit.id");
+        String mavenVersion = buildProperties.getProperty("maven.version");
+        String mavenBuildDate = buildProperties.getProperty("maven.build.date");
+
+        System.out.println("");
+        System.out.println("EVE:Online Blueprint Tools " + mavenVersion + "\n");
+        System.out.println(" Git commit id '" + gitCommitId + (dirtyFlag ? " (with pending commits)" : "") + " committed on " + gitCommitDate);
+        System.out.println(" Built on " + mavenBuildDate);
+        System.out.println(FOOTER);
+    }
+
 
     public static int parseInteger(String name, String value, int defaultValue) {
         if (value == null || value.trim().isEmpty())

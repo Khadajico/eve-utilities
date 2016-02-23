@@ -3,18 +3,26 @@ package com.arrggh.eve.blueprint.utilities;
 import java.util.List;
 
 public class ColumnOutputPrinter {
+    public enum Justification {
+        LEFT, RIGHT;
+    }
+
     private final String[] headers;
-    private final Class<?>[] classes;
+    private final Justification[] justifications;
     private final List<String[]> data;
 
-    public ColumnOutputPrinter(String[] headers, Class<?>[] classes, List<String[]> data) {
+    public ColumnOutputPrinter(String[] headers, Justification[] justifications, List<String[]> data) {
         this.headers = headers;
-        this.classes = classes;
+        this.justifications = justifications;
         this.data = data;
     }
 
     public void output() {
         int widths[] = new int[headers.length];
+        for (int c = 0; c != widths.length; c++) {
+            widths[c] = headers[c].length();
+        }
+
         for (String[] row : data) {
             for (int c = 0; c != widths.length; c++) {
                 if (widths[c] < row[c].length()) {
@@ -27,9 +35,9 @@ public class ColumnOutputPrinter {
         StringBuilder formatStringBuilder = new StringBuilder();
         for (int c = 0; c != widths.length; c++) {
             headerStringBuilder.append("%-" + widths[c] + "s    ");
-            if (classes[c] == String.class) {
+            if (justifications[c] == Justification.LEFT) {
                 formatStringBuilder.append("%-" + widths[c] + "s    ");
-            } else if (classes[c] == Number.class) {
+            } else if (justifications[c] == Justification.RIGHT) {
                 formatStringBuilder.append("%" + widths[c] + "s    ");
             } else {
                 formatStringBuilder.append("%" + widths[c] + "s    ");

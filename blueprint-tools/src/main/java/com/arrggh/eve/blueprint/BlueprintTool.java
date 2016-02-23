@@ -6,6 +6,7 @@ import com.arrggh.eve.blueprint.data.*;
 import com.arrggh.eve.blueprint.locator.BlueprintLocator;
 import com.arrggh.eve.blueprint.logging.LoggingUtilities;
 import com.arrggh.eve.blueprint.optimizer.BlueprintOptimizer;
+import com.arrggh.eve.blueprint.optimizer.BuildManifest;
 import org.apache.commons.cli.ParseException;
 import org.apache.logging.log4j.Level;
 
@@ -36,13 +37,16 @@ public class BlueprintTool {
             File priceCacheFile = new File(parameters.getPriceCache());
             MarketPriceCacheUtilities.loadCacheFromFile(priceCache, priceCacheFile);
             BlueprintOptimizer optimizer = new BlueprintOptimizer(typeLoader, blueprintLoader, priceQuery, parameters.getBlueprintName());
-            optimizer.generateBuildTree();
+            BuildManifest manifest = optimizer.generateBuildTree();
+            manifest.dumpToConsole();
             MarketPriceCacheUtilities.saveCacheToFile(priceCache, priceCacheFile);
         } else if (parameters.isLocate()) {
             blueprintLoader.loadFile();
 
             BlueprintLocator locator = new BlueprintLocator(blueprintLoader, parameters.getSearchString(), parameters.getLimit());
             locator.locate();
+        } else if (parameters.isVersion()) {
+            parser.dumpVersionInfoToConsole();
         } else {
             parser.dumpHelpToConsole();
         }
