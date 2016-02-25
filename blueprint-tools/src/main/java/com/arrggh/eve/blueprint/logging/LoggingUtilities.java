@@ -7,6 +7,10 @@ import org.apache.logging.log4j.core.config.Configuration;
 import static org.apache.logging.log4j.LogManager.getContext;
 
 public interface LoggingUtilities {
+    /**
+     * Set the global logging level. The new log4j has deprecated the setLevel()
+     * method and you now need to jump through some extra hoops to get it done.
+     */
     static void setLoggingLevel(Level level) {
         LoggerContext ctx = (LoggerContext) getContext(false);
         Configuration config = ctx.getConfiguration();

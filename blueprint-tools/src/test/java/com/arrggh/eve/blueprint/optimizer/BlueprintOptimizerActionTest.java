@@ -9,7 +9,9 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-public class BlueprintOptimizerTest {
+import static org.junit.Assert.assertEquals;
+
+public class BlueprintOptimizerActionTest {
     private static TypeLoader typeLoader;
     private static BlueprintLoader blueprintLoader;
     private static TestMarketPriceCache priceCache;
@@ -29,21 +31,25 @@ public class BlueprintOptimizerTest {
 
     @Test
     public void testOptimizeVespaII() throws IOException {
-        MarketPriceCacheUtilities.loadCacheFromURL(priceCache, BlueprintOptimizerTest.class.getResource("/vespaII-price-cache.json"));
+        MarketPriceCacheUtilities.loadCacheFromURL(priceCache, BlueprintOptimizerActionTest.class.getResource("/vespaII-price-cache.json"));
         priceCache.resetCacheTimestamps();
 
-        BlueprintOptimizer optimizer = new BlueprintOptimizer(typeLoader, blueprintLoader, priceQuery, "Vespa II Blueprint");
+        BlueprintOptimizerAction optimizer = new BlueprintOptimizerAction(typeLoader, blueprintLoader, priceQuery, "Vespa II Blueprint");
         BuildManifest manifest = optimizer.generateBuildTree();
         manifest.dumpToConsole();
+        assertEquals(3, manifest.getBuildList().size());
+        assertEquals(11, manifest.getShoppingList().size());
     }
 
     @Test
     public void testOptimizeAvatar() throws IOException {
-        MarketPriceCacheUtilities.loadCacheFromURL(priceCache, BlueprintOptimizerTest.class.getResource("/avatar-price-cache.json"));
+        MarketPriceCacheUtilities.loadCacheFromURL(priceCache, BlueprintOptimizerActionTest.class.getResource("/avatar-price-cache.json"));
         priceCache.resetCacheTimestamps();
 
-        BlueprintOptimizer optimizer = new BlueprintOptimizer(typeLoader, blueprintLoader, priceQuery, "Avatar Blueprint");
+        BlueprintOptimizerAction optimizer = new BlueprintOptimizerAction(typeLoader, blueprintLoader, priceQuery, "Avatar Blueprint");
         BuildManifest manifest = optimizer.generateBuildTree();
         manifest.dumpToConsole();
+        assertEquals(6, manifest.getBuildList().size());
+        assertEquals(17, manifest.getShoppingList().size());
     }
 }

@@ -24,6 +24,7 @@ public class BuildTreeMaterialNode implements BuildTreeNode {
 
     @Override
     public Optional<Double> getBuildPrice() {
+        // You can never build a material, i.e. No blueprint should exist for this item
         return Optional.empty();
     }
 

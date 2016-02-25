@@ -15,14 +15,14 @@ import java.util.*;
 
 import static org.apache.logging.log4j.LogManager.getLogger;
 
-public class BlueprintOptimizer {
-    private static final Logger LOG = getLogger(BlueprintOptimizer.class);
+public class BlueprintOptimizerAction {
+    private static final Logger LOG = getLogger(BlueprintOptimizerAction.class);
     private final EveBlueprint blueprint;
     private final TypeLoader typeLoader;
     private final BlueprintLoader blueprintLoader;
     private final PriceQuery priceQuery;
 
-    public BlueprintOptimizer(TypeLoader typeLoader, BlueprintLoader blueprintLoader, PriceQuery priceQuery, String blueprintName) {
+    public BlueprintOptimizerAction(TypeLoader typeLoader, BlueprintLoader blueprintLoader, PriceQuery priceQuery, String blueprintName) {
         this.typeLoader = typeLoader;
         this.blueprintLoader = blueprintLoader;
         this.priceQuery = priceQuery;

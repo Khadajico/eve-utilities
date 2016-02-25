@@ -30,11 +30,15 @@ public class PriceQuery {
 
     private static final int marketId = 10000002;
 
+    /**
+     * Get the price for the specified type. The function will first look in the cache
+     * and if needed then query the CREST api for the current price.
+     */
     public Optional<Double> queryPrice(int typeId) {
         // Get it from the cache if possible
-        MarketPrice cachedPrice = cache.getPrice(typeId, marketId);
-        if (cachedPrice != null) {
-            return cachedPrice.getPrice();
+        Optional<MarketPrice> cachedPrice = cache.getPrice(typeId, marketId);
+        if (cachedPrice.isPresent()) {
+            return cachedPrice.get().getPrice();
         }
 
         // Do a lookup otherwise
@@ -47,6 +51,7 @@ public class PriceQuery {
         CloseableHttpClient httpclient = HttpClients.createDefault();
         String url = String.format("https://public-crest.eveonline.com/market/%d/types/%d/history/", marketId, typeId);
         HttpGet httpGet = new HttpGet(url);
+        httpGet.setHeader("User-Agent", "BlueprintTool [khadajico (at) gmail (dot) com]");
 
         long time = DEFAULT_TIME;
         Optional<Double> price = Optional.empty();

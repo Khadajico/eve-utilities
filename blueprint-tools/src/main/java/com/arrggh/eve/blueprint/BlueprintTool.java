@@ -3,15 +3,15 @@ package com.arrggh.eve.blueprint;
 import com.arrggh.eve.blueprint.cli.CommandLineArgumentParser;
 import com.arrggh.eve.blueprint.cli.Parameters;
 import com.arrggh.eve.blueprint.data.*;
-import com.arrggh.eve.blueprint.locator.BlueprintLocator;
 import com.arrggh.eve.blueprint.logging.LoggingUtilities;
-import com.arrggh.eve.blueprint.optimizer.BlueprintOptimizer;
+import com.arrggh.eve.blueprint.optimizer.BlueprintOptimizerAction;
 import com.arrggh.eve.blueprint.optimizer.BuildManifest;
 import org.apache.commons.cli.ParseException;
 import org.apache.logging.log4j.Level;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 public class BlueprintTool {
     public static void main(String[] args) throws ParseException, IOException {
@@ -36,15 +36,14 @@ public class BlueprintTool {
             typeLoader.loadFile();
             File priceCacheFile = new File(parameters.getPriceCache());
             MarketPriceCacheUtilities.loadCacheFromFile(priceCache, priceCacheFile);
-            BlueprintOptimizer optimizer = new BlueprintOptimizer(typeLoader, blueprintLoader, priceQuery, parameters.getBlueprintName());
+            BlueprintOptimizerAction optimizer = new BlueprintOptimizerAction(typeLoader, blueprintLoader, priceQuery, parameters.getBlueprintName());
             BuildManifest manifest = optimizer.generateBuildTree();
             manifest.dumpToConsole();
             MarketPriceCacheUtilities.saveCacheToFile(priceCache, priceCacheFile);
         } else if (parameters.isLocate()) {
             blueprintLoader.loadFile();
-
-            BlueprintLocator locator = new BlueprintLocator(blueprintLoader, parameters.getSearchString(), parameters.getLimit());
-            locator.locate();
+            List<String> results = blueprintLoader.matchBlueprintNames(parameters.getSearchString(), parameters.getLimit());
+            results.forEach(blueprintName -> System.out.println("  " + blueprintName));
         } else if (parameters.isVersion()) {
             parser.dumpVersionInfoToConsole();
         } else {

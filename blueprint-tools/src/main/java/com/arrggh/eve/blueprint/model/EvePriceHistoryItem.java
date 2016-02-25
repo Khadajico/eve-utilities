@@ -2,6 +2,12 @@ package com.arrggh.eve.blueprint.model;
 
 import lombok.Data;
 
+/**
+ * CREST Daily Market Price History
+ * <p>
+ * A list of these POJOs are populated when parsing the JSON object that is returned when
+ * a CREST price query is executed.
+ */
 @Data
 public class EvePriceHistoryItem {
     private String volume_str;
