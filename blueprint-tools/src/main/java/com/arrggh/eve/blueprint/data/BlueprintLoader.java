@@ -1,7 +1,14 @@
+/*
+ * Copyright (C) 2016 Khadajico
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ */
 package com.arrggh.eve.blueprint.data;
 
 import com.arrggh.eve.blueprint.model.EveBlueprint;
 import com.arrggh.eve.blueprint.model.EveBlueprintFile;
+import com.arrggh.eve.blueprint.utilities.ObjectMapperFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.Logger;
 
@@ -23,7 +30,7 @@ public class BlueprintLoader {
 
     public void loadFile() throws IOException {
         System.out.print("Loading blueprints ... ");
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = ObjectMapperFactory.buildObjectMapper();
         InputStream typeStream = BlueprintLoader.class.getResourceAsStream("/data/eve-blueprints.json");
         EveBlueprintFile fileContents = mapper.readValue(typeStream, EveBlueprintFile.class);
         for (EveBlueprint blueprint : fileContents.getBlueprints()) {

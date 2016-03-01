@@ -1,7 +1,14 @@
+/*
+ * Copyright (C) 2016 Khadajico
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ */
 package com.arrggh.eve.blueprint.data;
 
 import com.arrggh.eve.blueprint.model.EvePriceHistory;
 import com.arrggh.eve.blueprint.model.MarketPrice;
+import com.arrggh.eve.blueprint.utilities.ObjectMapperFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
@@ -21,13 +28,14 @@ public class PriceQuery {
     private static final long DEFAULT_TIME = 0;
 
     private static final Logger LOG = getLogger(PriceQuery.class);
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper = ObjectMapperFactory.buildObjectMapper();
     private MarketPriceCache cache;
 
     public PriceQuery(MarketPriceCache cache) {
         this.cache = cache;
     }
 
+    // TODO Hard coded to JITA market at the moment, needs to be argument
     private static final int marketId = 10000002;
 
     /**
